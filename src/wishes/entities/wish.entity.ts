@@ -16,6 +16,12 @@ export class Wish {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
   @Column({ length: 250 })
   @Length(1, 250)
   name: string;
@@ -45,10 +51,4 @@ export class Wish {
 
   @OneToOne(() => User, (user) => user.id)
   owner: User;
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
 }
