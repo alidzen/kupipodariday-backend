@@ -1,8 +1,12 @@
 import { IsUrl, Length } from 'class-validator';
+import { Offer } from '../../offers/entities/offer.entity';
+import { User } from '../..//users/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -16,30 +20,31 @@ export class Wish {
   @Length(1, 250)
   name: string;
 
-  @Column()
+  @Column({ nullable: true })
   link: string;
 
-  @Column()
+  @Column({ nullable: true })
   @IsUrl()
   image: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   price: number;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   raised: number;
-
-  @Column()
-  owner: string;
 
   @Column({ length: 1024 })
   @Length(1, 1024)
   description: string;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'int', default: 0 })
   copied: number;
 
-  // TODO: add connextions between enteties
+  @OneToMany(() => Offer, (offer) => offer.item)
+  offers: Offer[];
+
+  @OneToOne(() => User, (user) => user.id)
+  owner: User;
 
   @CreateDateColumn()
   createdAt: Date;

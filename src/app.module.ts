@@ -1,15 +1,14 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UsersController } from './users/users.controller';
-import { WishesController } from './wishes/wishes.controller';
-import { WishlistsController } from './wishlists/wishlists.controller';
-import { OffersController } from './offers/offers.controller';
-import { UsersService } from './users/users.service';
 import { UsersModule } from './users/users.module';
 import { WishesModule } from './wishes/wishes.module';
 import { WishlistsModule } from './wishlists/wishlists.module';
 import { OffersModule } from './offers/offers.module';
+import { User } from './users/entities/user.entity';
+import { Wish } from './wishes/entities/wish.entity';
+import { Wishlist } from './wishlists/entities/wishlist.entity';
+import { Offer } from './offers/entities/offer.entity';
 
 @Module({
   imports: [
@@ -20,7 +19,7 @@ import { OffersModule } from './offers/offers.module';
       username: 'student',
       password: 'student',
       database: 'kupipodariday',
-      entities: [],
+      entities: [User, Wish, Wishlist, Offer],
       migrations: [__dirname + '/database/migrations/**/*{.ts,.js}'],
       synchronize: true, // TRUE - dev mode only
     }),
@@ -29,14 +28,7 @@ import { OffersModule } from './offers/offers.module';
     WishlistsModule,
     OffersModule,
   ],
-
-  controllers: [
-    AppController,
-    UsersController,
-    WishesController,
-    WishlistsController,
-    OffersController,
-  ],
-  providers: [UsersService],
+  controllers: [AppController],
+  providers: [],
 })
 export class AppModule {}
