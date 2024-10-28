@@ -5,6 +5,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinTable,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -47,6 +48,7 @@ export class Wish {
   copied: number;
 
   @OneToMany(() => Offer, (offer) => offer.item)
+  @JoinTable()
   offers: Offer[];
 
   @OneToOne(() => User, (user) => user.id)

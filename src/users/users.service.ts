@@ -1,34 +1,58 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { Repository, FindOptionsWhere, Like } from 'typeorm';
 import { User } from './entities/user.entity';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
-    private usersRepository: Repository<User>,
+    private readonly userRepository: Repository<User>,
   ) {}
 
-  create(createUserDto: CreateUserDto) {
-    return this.usersRepository.save(createUserDto);
+  async findOne(query: FindOptionsWhere<User>): Promise<User | undefined> {
+    const user = await this.userRepository.findOne({ where: query });
+    if (!user) throw new NotFoundException('User not found');
+    return user;
   }
 
-  findAll(): Promise<User[]> {
-    return this.usersRepository.find();
+  async findOneByUsername(username: string): Promise<User> {
+    const user = await this.userRepository.findOne({ where: { username } });
+    if (!user) throw new NotFoundException('User not found');
+    return user;
   }
 
-  findOne(id: number): Promise<User | null> {
-    return this.usersRepository.findOneBy({ id });
+  async findOwn(userId: number): Promise<User> {
+    return this.findOne({ id: userId });
   }
 
-  async remove(id: number): Promise<void> {
-    await this.usersRepository.delete(id);
+  async updateOne(userId: number, updateUserDto: UpdateUserDto): Promise<User> {
+    await this.userRepository.update(userId, updateUserDto);
+    return this.findOne({ id: userId });
   }
 
-  updateById(id: number, updateUserDto: UpdateUserDto) {
-    return this.usersRepository.update({ id }, updateUserDto);
+  async getWishesByUserId(userId: number): Promise<any> {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ['wishes'],
+    });
+    if (!user) throw new NotFoundException('User not found');
+    return user.wishes;
+  }
+
+  async getWishesByUsername(username: string): Promise<any> {
+    const user = await this.userRepository.findOne({
+      where: { username },
+      relations: ['wishes'],
+    });
+    if (!user) throw new NotFoundException('User not found');
+    return user.wishes;
+  }
+
+  async findMany(query: string): Promise<User[]> {
+    return await this.userRepository.find({
+      where: [{ username: Like(`%${query}%`) }, { email: Like(`%${query}%`) }],
+    });
   }
 }

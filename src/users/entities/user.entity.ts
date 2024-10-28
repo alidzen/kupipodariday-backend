@@ -8,6 +8,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  JoinTable,
 } from 'typeorm';
 import { Wishlist } from 'src/wishlists/entities/wishlist.entity';
 
@@ -24,7 +25,7 @@ export class User {
 
   @Column({ unique: true, length: 30 })
   @Length(2, 30)
-  udername: string;
+  username: string;
 
   @Column({ length: 200, default: 'Пока ничего не рассказал о себе' })
   @Length(2, 200)
@@ -41,11 +42,14 @@ export class User {
   password: string;
 
   @OneToMany(() => Wish, (wish) => wish.id)
+  @JoinTable()
   wishes: Wish[];
 
   @OneToMany(() => Offer, (offer) => offer.user)
+  @JoinTable()
   offers: Offer[];
 
   @OneToMany(() => Wishlist, (wishlist) => wishlist.user)
+  @JoinTable()
   wishlist: Wishlist[];
 }
