@@ -1,4 +1,3 @@
-// Create a file like `all-exceptions.filter.ts` in a middleware or filters folder
 import {
   ExceptionFilter,
   Catch,

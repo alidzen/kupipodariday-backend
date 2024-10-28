@@ -34,7 +34,7 @@ export class Wishlist {
   @Column()
   image: string;
 
-  @ManyToOne(() => User, (user) => user.wishlist)
+  @ManyToOne(() => User, (user) => user.wishlist, { onDelete: 'CASCADE' })
   user: User;
 
   @ManyToMany(() => Wish)

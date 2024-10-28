@@ -5,9 +5,8 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinTable,
+  ManyToOne,
   OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -48,9 +47,8 @@ export class Wish {
   copied: number;
 
   @OneToMany(() => Offer, (offer) => offer.item)
-  @JoinTable()
   offers: Offer[];
 
-  @OneToOne(() => User, (user) => user.id)
+  @ManyToOne(() => User, (user) => user.wishes, { onDelete: 'CASCADE' })
   owner: User;
 }

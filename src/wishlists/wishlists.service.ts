@@ -47,7 +47,6 @@ export class WishlistsService {
     updateWishlistDto: UpdateWishlistDto,
   ): Promise<Wishlist> {
     const wishlist = await this.findOne(id);
-    // TODO: fix save wish list
     if (updateWishlistDto.itemsId) {
       // Fetch full Wish entities by itemsId using wishRepository
       const items = await this.wishRepository.findByIds(

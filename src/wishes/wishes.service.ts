@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Wish } from './entities/wish.entity';
@@ -57,6 +61,9 @@ export class WishesService {
 
   async copyWish(wishId: number, userId: number): Promise<Wish> {
     const originalWish = await this.findOne(wishId);
+    if (originalWish.owner.id === userId) {
+      throw new ConflictException('You already have this wish');
+    }
     const copiedWish = this.wishRepository.create({
       ...originalWish,
       owner: { id: userId },

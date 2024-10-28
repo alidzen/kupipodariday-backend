@@ -37,10 +37,14 @@ export class UsersService {
     return this.findOne({ id: userId });
   }
 
+  // TODO:
+  // fix that this does not return user wishes
+  // continue to test other routes
+  // check that only owner can update his own wishes
   async getWishesByUserId(userId: number): Promise<any> {
     const user = await this.userRepository.findOne({
       where: { id: userId },
-      relations: ['wishes'],
+      relations: { wishes: true },
     });
     if (!user) throw new NotFoundException('User not found');
     return user.wishes;

@@ -2,7 +2,7 @@
   "name": "kupipodariday-backend",
   "version": "0.0.1",
   "description": "",
-  "author": "",
+  "author": "Denis Golubtsov",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
@@ -18,7 +18,12 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "typeorm": "ts-node --files -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
+    "migrate:generate": "npm run typeorm migration:generate -- -d ormconfig.ts",
+    "migrate:create": "npm run typeorm migration:create --",
+    "migrate:up": "npm run typeorm migration:run -- -d ormconfig.ts",
+    "migrate:down": "npm run typeorm migration:revert -- -d ormconfig.ts"
   },
   "dependencies": {
     "@nestjs/cache-manager": "^2.3.0",
@@ -36,8 +41,6 @@
     "cache-manager": "^5.7.6",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
-    "cookie-parser": "^1.4.7",
-    "express-session": "^1.18.1",
     "isomorphic-fetch": "^3.0.0",
     "ncsrf": "^1.1.0",
     "nest-winston": "^1.9.7",
@@ -66,6 +69,7 @@
     "eslint": "^8.0.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
+    "helmet": "^8.0.0",
     "jest": "28.1.2",
     "prettier": "^2.3.2",
     "source-map-support": "^0.5.20",

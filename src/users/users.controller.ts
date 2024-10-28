@@ -20,9 +20,11 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  async findOwn(@Request() req): Promise<User> {
+  async findOwn(@Request() req): Promise<Omit<User, 'password'>> {
     const userId = req.user.id;
-    return this.usersService.findOne({ id: userId });
+    const user = await this.usersService.findOne({ id: userId });
+    const { password: _, ...result } = user;
+    return result;
   }
 
   @UseGuards(JwtAuthGuard)
@@ -32,20 +34,25 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<any> {
     const userId = req.user.id;
-    return this.usersService.updateOne(userId, updateUserDto);
+    const user = await this.usersService.updateOne(userId, updateUserDto);
+    const { password: _, ...result } = user;
+    return result;
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('me/wishes')
   async getOwnWishes(@Request() req): Promise<any> {
     const userId = req.user.id;
-    return this.usersService.getWishesByUserId(userId);
+    const wishes = await this.usersService.getWishesByUserId(userId);
+    return wishes;
   }
 
   @UseGuards(JwtAuthGuard)
   @Get(':username')
   async findOne(@Param('username') username: string): Promise<any> {
-    return this.usersService.findOneByUsername(username);
+    const user = await this.usersService.findOneByUsername(username);
+    const { password: _, ...result } = user;
+    return result;
   }
 
   @UseGuards(JwtAuthGuard)
