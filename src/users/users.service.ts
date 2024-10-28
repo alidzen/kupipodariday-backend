@@ -38,8 +38,6 @@ export class UsersService {
   }
 
   // TODO:
-  // fix that this does not return user wishes
-  // continue to test other routes
   // check that only owner can update his own wishes
   async getWishesByUserId(userId: number): Promise<any> {
     const user = await this.userRepository.findOne({

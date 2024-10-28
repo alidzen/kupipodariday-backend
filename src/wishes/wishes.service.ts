@@ -48,11 +48,19 @@ export class WishesService {
   }
 
   async updateOne(id: number, updateWishDto: UpdateWishDto): Promise<Wish> {
+    const wish = await this.findOne(id);
+    if (!wish) throw new NotFoundException('Wish not found');
+
+    if (wish.offers.length > 0) {
+      delete updateWishDto.price;
+      delete updateWishDto.description;
+    }
+
     await this.wishRepository.update(id, updateWishDto);
     return this.findOne(id);
   }
 
-  async removeOne(id: number): Promise<void> {
+  async removeOne(id: number, userId: number): Promise<void> {
     const result = await this.wishRepository.delete(id);
     if (result.affected === 0) {
       throw new NotFoundException('Wish not found');

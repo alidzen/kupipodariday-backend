@@ -8,6 +8,8 @@ import {
   Body,
   UseGuards,
   Request,
+  ForbiddenException,
+  NotFoundException,
 } from '@nestjs/common';
 import { WishesService } from './wishes.service';
 import { CreateWishDto } from './dto/create-wish.dto';
@@ -50,8 +52,22 @@ export class WishesController {
   @Patch(':id')
   async update(
     @Param('id') id: number,
+    @Request() req,
     @Body() updateWishDto: UpdateWishDto,
   ): Promise<any> {
+    const wish = await this.findOne(id);
+    if (!wish) {
+      throw new NotFoundException('Wish not found');
+    }
+    if (wish.owner.id !== req.user.id) {
+      throw new ForbiddenException('You can only edit your own wishes');
+    }
+    if (wish.offers.length > 0) {
+      throw new ForbiddenException(
+        'Cannot edit this wish as it has contributions',
+      );
+    }
+
     return this.wishesService.updateOne(id, updateWishDto);
   }
 
