@@ -9,7 +9,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { WishDto } from 'src/wishes/dto/wish.dto';
-import { WishlistDto } from 'src/wishlists/entities/dto/wish-list.dto';
+import { WishlistDto } from 'src/wishlists/dto/wish-list.dto';
 
 export class UserDto {
   @IsInt()

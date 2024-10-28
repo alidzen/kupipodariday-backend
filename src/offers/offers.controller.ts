@@ -1,54 +1,42 @@
 import {
   Controller,
-  Post,
-  Body,
   Get,
+  Post,
   Param,
-  Patch,
-  Delete,
-  Request,
+  Body,
   UseGuards,
+  Request,
 } from '@nestjs/common';
 import { OffersService } from './offers.service';
-import { CreateOfferDto } from './dto/create-offer.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { Offer } from './entities/offer.entity';
+import { CreateOfferDto } from './dto/create-offer.dto';
 
 @Controller('offers')
 export class OffersController {
   constructor(private readonly offersService: OffersService) {}
 
+  // GET /offers - Retrieve all offers
   @UseGuards(AuthGuard('jwt'))
-  @Post()
-  async create(
-    @Body() createOfferDto: CreateOfferDto,
-    @Request() req,
-  ): Promise<Offer> {
-    return this.offersService.create(createOfferDto, req.user.id);
-  }
-
   @Get()
-  async findAll(): Promise<Offer[]> {
+  async findAll(): Promise<any> {
     return this.offersService.findAll();
   }
 
+  // POST /offers - Create a new offer
+  @UseGuards(AuthGuard('jwt'))
+  @Post()
+  async create(
+    @Request() req,
+    @Body() createOfferDto: CreateOfferDto,
+  ): Promise<any> {
+    const userId = req.user.id;
+    return this.offersService.create(userId, createOfferDto);
+  }
+
+  // GET /offers/:id - Retrieve a specific offer by ID
+  @UseGuards(AuthGuard('jwt'))
   @Get(':id')
-  async findOne(@Param('id') id: number): Promise<Offer> {
+  async findOne(@Param('id') id: number): Promise<any> {
     return this.offersService.findOne(id);
-  }
-
-  @UseGuards(AuthGuard('jwt'))
-  @Patch(':id')
-  async update(
-    @Param('id') id: number,
-    @Body() updateOfferDto: Partial<CreateOfferDto>,
-  ): Promise<Offer> {
-    return this.offersService.update(id, updateOfferDto);
-  }
-
-  @UseGuards(AuthGuard('jwt'))
-  @Delete(':id')
-  async remove(@Param('id') id: number): Promise<void> {
-    return this.offersService.remove(id);
   }
 }

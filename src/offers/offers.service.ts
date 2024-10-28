@@ -1,60 +1,50 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateOfferDto } from './dto/create-offer.dto';
 import { Offer } from './entities/offer.entity';
-import { User } from 'src/users/entities/user.entity';
-import { Wish } from 'src/wishes/entities/wish.entity';
+import { CreateOfferDto } from './dto/create-offer.dto';
+import { Wish } from '../wishes/entities/wish.entity';
 
 @Injectable()
 export class OffersService {
   constructor(
     @InjectRepository(Offer)
-    private offersRepository: Repository<Offer>,
-    @InjectRepository(User)
-    private usersRepository: Repository<User>,
+    private readonly offerRepository: Repository<Offer>,
     @InjectRepository(Wish)
-    private wishesRepository: Repository<Wish>,
+    private readonly wishRepository: Repository<Wish>,
   ) {}
 
-  async create(createOfferDto: CreateOfferDto, userId: number): Promise<Offer> {
-    const user = await this.usersRepository.findOneOrFail({
-      where: { id: userId },
+  async findAll(): Promise<Offer[]> {
+    return await this.offerRepository.find({
+      relations: ['user', 'item'],
     });
-    const wish = await this.wishesRepository.findOneOrFail({
+  }
+
+  async create(userId: number, createOfferDto: CreateOfferDto): Promise<Offer> {
+    const wish = await this.wishRepository.findOne({
       where: { id: createOfferDto.itemId },
     });
+    if (!wish) throw new NotFoundException('Wish not found');
 
-    const offer = this.offersRepository.create({
+    const offer = this.offerRepository.create({
       ...createOfferDto,
-      user: user,
+      user: { id: userId },
       item: wish,
     });
 
-    return this.offersRepository.save(offer);
+    const savedOffer = await this.offerRepository.save(offer);
+    wish.raised += createOfferDto.amount;
+    await this.wishRepository.save(wish);
+
+    return savedOffer;
   }
 
-  findAll(): Promise<Offer[]> {
-    return this.offersRepository.find({
-      relations: { user: true, item: true },
+  async findOne(id: number): Promise<Offer> {
+    const offer = await this.offerRepository.findOne({
+      where: { id },
+      relations: ['user', 'item'],
     });
-  }
-
-  findOne(id: number): Promise<Offer> {
-    return this.offersRepository.findOneBy({
-      id: id,
-    });
-  }
-
-  async update(
-    id: number,
-    updateOfferDto: Partial<CreateOfferDto>,
-  ): Promise<Offer> {
-    await this.offersRepository.update(id, updateOfferDto);
-    return this.findOne(id);
-  }
-
-  async remove(id: number): Promise<void> {
-    await this.offersRepository.delete(id);
+    if (!offer) throw new NotFoundException('Offer not found');
+    return offer;
   }
 }
