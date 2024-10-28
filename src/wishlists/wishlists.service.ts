@@ -4,12 +4,15 @@ import { Repository } from 'typeorm';
 import { Wishlist } from './entities/wishlist.entity';
 import { CreateWishlistDto } from './dto/create-wishlist.dto';
 import { UpdateWishlistDto } from './dto/update-wishlist.dto';
+import { Wish } from 'src/wishes/entities/wish.entity';
 
 @Injectable()
 export class WishlistsService {
   constructor(
     @InjectRepository(Wishlist)
     private readonly wishlistRepository: Repository<Wishlist>,
+    @InjectRepository(Wish)
+    private readonly wishRepository: Repository<Wish>,
   ) {}
 
   async findAll(): Promise<Wishlist[]> {
@@ -46,7 +49,8 @@ export class WishlistsService {
     const wishlist = await this.findOne(id);
     // TODO: fix save wish list
     if (updateWishlistDto.itemsId) {
-      const items = await this.wishlistRepository.findByIds(
+      // Fetch full Wish entities by itemsId using wishRepository
+      const items = await this.wishRepository.findByIds(
         updateWishlistDto.itemsId,
       );
 
@@ -54,7 +58,7 @@ export class WishlistsService {
         throw new NotFoundException('Some wishes were not found');
       }
 
-      wishlist.items = items;
+      wishlist.items = items; // Assign full Wish entities to items
     }
     await this.wishlistRepository.save({ ...wishlist, ...updateWishlistDto });
     return this.findOne(id);

@@ -8,22 +8,20 @@ import {
   Request,
 } from '@nestjs/common';
 import { OffersService } from './offers.service';
-import { AuthGuard } from '@nestjs/passport';
 import { CreateOfferDto } from './dto/create-offer.dto';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('offers')
 export class OffersController {
   constructor(private readonly offersService: OffersService) {}
 
-  // GET /offers - Retrieve all offers
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   @Get()
   async findAll(): Promise<any> {
     return this.offersService.findAll();
   }
 
-  // POST /offers - Create a new offer
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   @Post()
   async create(
     @Request() req,
@@ -33,8 +31,7 @@ export class OffersController {
     return this.offersService.create(userId, createOfferDto);
   }
 
-  // GET /offers/:id - Retrieve a specific offer by ID
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findOne(@Param('id') id: number): Promise<any> {
     return this.offersService.findOne(id);

@@ -10,21 +10,21 @@ import {
   Request,
 } from '@nestjs/common';
 import { WishlistsService } from './wishlists.service';
-import { AuthGuard } from '@nestjs/passport';
 import { CreateWishlistDto } from './dto/create-wishlist.dto';
 import { UpdateWishlistDto } from './dto/update-wishlist.dto';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('wishlists')
 export class WishlistsController {
   constructor(private readonly wishlistsService: WishlistsService) {}
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   @Get()
   async findAll(): Promise<any> {
     return this.wishlistsService.findAll();
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   @Post()
   async create(
     @Request() req,
@@ -34,13 +34,13 @@ export class WishlistsController {
     return this.wishlistsService.create(userId, createWishlistDto);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findOne(@Param('id') id: number): Promise<any> {
     return this.wishlistsService.findOne(id);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   async update(
     @Param('id') id: number,
@@ -49,7 +49,7 @@ export class WishlistsController {
     return this.wishlistsService.updateOne(id, updateWishlistDto);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async removeOne(@Param('id') id: number): Promise<void> {
     return this.wishlistsService.removeOne(id);
