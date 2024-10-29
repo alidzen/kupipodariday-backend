@@ -9,12 +9,15 @@ import { Repository } from 'typeorm';
 import { Wish } from './entities/wish.entity';
 import { CreateWishDto } from './dto/create-wish.dto';
 import { UpdateWishDto } from './dto/update-wish.dto';
+import { Offer } from 'src/offers/entities/offer.entity';
 
 @Injectable()
 export class WishesService {
   constructor(
     @InjectRepository(Wish)
     private readonly wishRepository: Repository<Wish>,
+    @InjectRepository(Offer)
+    private readonly offerRepository: Repository<Offer>,
   ) {}
 
   async create(userId: number, createWishDto: CreateWishDto): Promise<Wish> {
@@ -53,6 +56,14 @@ export class WishesService {
       relations: ['owner'],
     });
     if (!wish) throw new NotFoundException('Wish not found');
+
+    const offers = await this.offerRepository.find({
+      where: {
+        item: { id },
+      },
+    });
+    wish.raised = offers.reduce((sum, offer) => sum + offer.amount, 0);
+
     return wish;
   }
 

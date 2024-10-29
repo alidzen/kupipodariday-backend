@@ -54,7 +54,6 @@ import { Wishlist } from './wishlists/entities/wishlist.entity';
         info: 4,
       },
     }),
-
     UsersModule,
     AuthModule,
     WishesModule,

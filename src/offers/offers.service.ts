@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Offer } from './entities/offer.entity';
@@ -26,6 +30,18 @@ export class OffersService {
     });
     if (!wish) throw new NotFoundException('Wish not found');
 
+    if (wish.owner.id === userId) {
+      throw new ForbiddenException('You cannot contribute to your own wish.');
+    }
+
+    const newTotal = wish.raised + createOfferDto.amount;
+    if (newTotal > wish.price) {
+      throw new ForbiddenException(
+        `Your contribution exceeds the remaining amount required. Maximum allowable contribution: ${
+          wish.price - wish.raised
+        }.`,
+      );
+    }
     const offer = this.offerRepository.create({
       ...createOfferDto,
       user: { id: userId },
