@@ -1,6 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindOptionsWhere, Like } from 'typeorm';
+import { Repository, FindOptionsWhere, Like, QueryFailedError } from 'typeorm';
 import { User } from './entities/user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -33,7 +37,16 @@ export class UsersService {
   }
 
   async updateOne(userId: number, updateUserDto: UpdateUserDto): Promise<User> {
-    await this.userRepository.update(userId, updateUserDto);
+    try {
+      await this.userRepository.update(userId, updateUserDto);
+    } catch (e) {
+      if (e instanceof QueryFailedError && e.message.includes('duplicate')) {
+        throw new BadRequestException(
+          'User with the same email or name already exist',
+        );
+      }
+      throw e;
+    }
     return this.findOne({ id: userId });
   }
 
