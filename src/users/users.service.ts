@@ -37,8 +37,6 @@ export class UsersService {
     return this.findOne({ id: userId });
   }
 
-  // TODO:
-  // check that only owner can update his own wishes
   async getWishesByUserId(userId: number): Promise<any> {
     const user = await this.userRepository.findOne({
       where: { id: userId },

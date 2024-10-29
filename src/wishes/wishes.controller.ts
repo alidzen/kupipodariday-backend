@@ -30,13 +30,11 @@ export class WishesController {
     return this.wishesService.create(userId, createWishDto);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('last')
   async findLast(): Promise<any> {
     return this.wishesService.findLast();
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('top')
   async findTop(): Promise<any> {
     return this.wishesService.findTop();
@@ -55,26 +53,16 @@ export class WishesController {
     @Request() req,
     @Body() updateWishDto: UpdateWishDto,
   ): Promise<any> {
-    const wish = await this.findOne(id);
-    if (!wish) {
-      throw new NotFoundException('Wish not found');
-    }
-    if (wish.owner.id !== req.user.id) {
-      throw new ForbiddenException('You can only edit your own wishes');
-    }
-    if (wish.offers.length > 0) {
-      throw new ForbiddenException(
-        'Cannot edit this wish as it has contributions',
-      );
-    }
+    const userId = req.user.id;
 
-    return this.wishesService.updateOne(id, updateWishDto);
+    return this.wishesService.updateOne(id, userId, updateWishDto);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  async removeOne(@Param('id') id: number): Promise<void> {
-    return this.wishesService.removeOne(id);
+  async removeOne(@Request() req, @Param('id') id: number): Promise<void> {
+    const userId = req.user.id;
+    return this.wishesService.removeOne(id, userId);
   }
 
   @UseGuards(JwtAuthGuard)

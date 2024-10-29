@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -27,14 +28,22 @@ export class WishesService {
   async findLast(): Promise<Wish[]> {
     return this.wishRepository.find({
       order: { createdAt: 'DESC' },
-      take: 10,
+      take: 40,
+      relations: {
+        offers: true,
+        owner: true,
+      },
     });
   }
 
   async findTop(): Promise<Wish[]> {
     return this.wishRepository.find({
       order: { raised: 'DESC' },
-      take: 10,
+      take: 20,
+      relations: {
+        offers: true,
+        owner: true,
+      },
     });
   }
 
@@ -47,13 +56,21 @@ export class WishesService {
     return wish;
   }
 
-  async updateOne(id: number, updateWishDto: UpdateWishDto): Promise<Wish> {
+  async updateOne(
+    id: number,
+    userId: number,
+    updateWishDto: UpdateWishDto,
+  ): Promise<Wish> {
     const wish = await this.findOne(id);
     if (!wish) throw new NotFoundException('Wish not found');
 
+    if (wish.owner.id !== userId) {
+      throw new ForbiddenException('You can only edit your own wishes');
+    }
     if (wish.offers.length > 0) {
-      delete updateWishDto.price;
-      delete updateWishDto.description;
+      throw new ForbiddenException(
+        'Cannot edit this wish as it has contributions',
+      );
     }
 
     await this.wishRepository.update(id, updateWishDto);
@@ -61,6 +78,11 @@ export class WishesService {
   }
 
   async removeOne(id: number, userId: number): Promise<void> {
+    const wish = await this.findOne(id);
+
+    if (wish.owner.id !== userId) {
+      throw new ForbiddenException('You can only delete your own wishes');
+    }
     const result = await this.wishRepository.delete(id);
     if (result.affected === 0) {
       throw new NotFoundException('Wish not found');

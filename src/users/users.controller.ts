@@ -51,7 +51,7 @@ export class UsersController {
   @Get(':username')
   async findOne(@Param('username') username: string): Promise<any> {
     const user = await this.usersService.findOneByUsername(username);
-    const { password: _, ...result } = user;
+    const { password: _, email: _email, ...result } = user;
     return result;
   }
 

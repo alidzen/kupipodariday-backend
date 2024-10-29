@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Wishlist } from './entities/wishlist.entity';
@@ -44,11 +48,15 @@ export class WishlistsService {
 
   async updateOne(
     id: number,
+    userId: number,
     updateWishlistDto: UpdateWishlistDto,
   ): Promise<Wishlist> {
     const wishlist = await this.findOne(id);
+
+    if (wishlist.user.id !== userId) {
+      throw new UnauthorizedException('You can only edit your own wishlists');
+    }
     if (updateWishlistDto.itemsId) {
-      // Fetch full Wish entities by itemsId using wishRepository
       const items = await this.wishRepository.findByIds(
         updateWishlistDto.itemsId,
       );
@@ -57,14 +65,19 @@ export class WishlistsService {
         throw new NotFoundException('Some wishes were not found');
       }
 
-      wishlist.items = items; // Assign full Wish entities to items
+      wishlist.items = items;
     }
     await this.wishlistRepository.save({ ...wishlist, ...updateWishlistDto });
     return this.findOne(id);
   }
 
-  async removeOne(id: number): Promise<void> {
+  async removeOne(id: number, userId: number): Promise<void> {
     const result = await this.wishlistRepository.delete(id);
+    const wishlist = await this.findOne(id);
+
+    if (wishlist.user.id !== userId) {
+      throw new UnauthorizedException('You can only delete your own wishlists');
+    }
     if (result.affected === 0) {
       throw new NotFoundException('Wishlist not found');
     }
