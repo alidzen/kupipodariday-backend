@@ -8,8 +8,6 @@ import {
   Body,
   UseGuards,
   Request,
-  ForbiddenException,
-  NotFoundException,
 } from '@nestjs/common';
 import { WishesService } from './wishes.service';
 import { CreateWishDto } from './dto/create-wish.dto';
